@@ -35,6 +35,7 @@ void newStars(){
   //init stars
   stars = new Star[starAmount];
   for(int i=0; i< stars.length; i++){
+    //populate array with new stars
     stars[i] = new Star();
   }
 }
@@ -78,9 +79,9 @@ public class Star {
   void draw() {
     //fall at their own rate
     gravity();
-    //if time changed brightness changes
+    //if time changed then brightness changes
     if (timeNow != (int)timeCount){
-      
+      //basically change into a random brightness each second
       intensity= random(0, 2);
       
     }
@@ -91,7 +92,7 @@ public class Star {
     rectMode(CENTER);
     rect(posx, posy, 2, 2); //<>//
     
-    //println("draw");
+    //update time
     updateTime();
   }
   void updateTime() {
@@ -99,9 +100,11 @@ public class Star {
     println(timeNow);
   }
   void gravity() {
+    //if position is bigger then the height limit reset
     if (posy > height){
       posy = 0;
     }
+    //update position
     posy += fallRate * speed;
   }
 }
