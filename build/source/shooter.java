@@ -25,24 +25,54 @@ public void setup() {
 }
 
 public void draw() {
+  //play the game galaga;
   galaga();
   time();
 }
 
-rect[] enemies;
 
+
+
+rect[] enemies;
+player player;
 //neatly wrapped game to be put in draw
 public void galaga() {
+  //update background
   bg();
+  //draw objects
+  player.draw();
 }
 //game setup
 public void galaga_setup(){
   newStars();
+  player = new player();
 }
 //controller function
-public void controller() {
+public void galagaController(char key) {
+  //player controller
+  // float playerMoveSpeed = 10;
+  // if (key == 'a') player.left(true);
+  // if (key == 'd') player.right(true);
+  // if (key == 'w') player.up(true);
+  // if (key == 's') player.down(true);
 }
-
+public void keyPressed(){
+  galagaController(key);
+  float playerMoveSpeed = 10;
+  if (key == 'a') player.left = true;
+  if (key == 'd') player.right = true;
+  if (key == 'w') player.up = true;
+  if (key == 's') player.down = true;
+  if (key == ' ') player.isShooting = true;
+}
+public void keyReleased(){
+  float playerMoveSpeed = 10;
+  if (key == 'a') player.left = false;
+  if (key == 'd') player.right = false;
+  if (key == 'w') player.up = false;
+  if (key == 's') player.down = false;
+  if (key == ' ') player.isShooting = false;
+}
 //array of stars
 Star[] stars; //<>//
 
@@ -115,7 +145,7 @@ public class Star {
   }
   public void updateTime() {
     timeNow = (int)timeCount;
-    println(timeNow);
+    // println(timeNow);
   }
   public void gravity() {
     //if position is bigger then the height limit reset
@@ -135,6 +165,56 @@ class enemy extends rect {
   }
 
 
+
+
+
+}
+
+class player extends rect{
+    float playerMoveSpeed = 10;
+    boolean up, down, left, right, isShooting = false;
+
+    player(){
+        this.cords = new PVector(width/2, height-30);
+        // println(width, height);
+    }
+
+
+    public void move(){
+      vel = new PVector(0,0);
+      if (up){
+        vel.y -= playerMoveSpeed;
+      }
+      if (down){
+        vel.y += playerMoveSpeed;
+      }
+      if (left){
+        vel.x -= playerMoveSpeed;
+      }
+      if (right){
+        vel.x += playerMoveSpeed;
+      }
+      // cords.add(vel);
+    }
+
+    public void shoot(){
+      if (isShooting){
+
+      }
+    }
+    public void draw(){
+      move();
+      super.draw();
+      // vel = new PVector(0,0);
+      // println(cords);
+    }
+}
+
+class bullet extends rect{
+
+    bullet(){
+      super(10,10);
+    }
 
 
 
@@ -173,10 +253,6 @@ public ellipse[] rectangleToEllipse(Rectangle[] rectangle_array) {
 
   return rectList.toArray(new ellipse[rectList.size()]);
 }
-
-
-
-
 
 public boolean ellipseWithEllipse(PVector cord, PVector size, PVector otherCord, PVector otherSize) {
   if (PVector.dist(cord, otherCord) < size.x+otherSize.x) {
@@ -255,52 +331,95 @@ public PVector[] findCorners(PVector cords, PVector size) {
   return corners;
 }
 
-interface object {
+public interface entity{
+  public boolean collision(object other);
+  public void draw();
+
+}
+
+public class object {
   final int TYPE_RECT = 1;
   final int TYPE_ELLIPSE = 2;
   final int defaultSize = 40;
 
-  public PVector getCords();
-  public PVector getSize();
-  public int getType();
+  PVector size;
+  PVector cords;
+  PVector vel = new PVector(0,0);
+  int type;
 
-  public boolean collision(object other);
+  object(PVector size, PVector cords){
+    this.size = size;
+    this.cords = cords;
+  }
+  object(PVector size){
+    this.size = size;
+    this.cords = new PVector(50,50);
+  }
 
-  public void move(float x, float y);
-  public void move(PVector delta);
-  public void moveTo(float x, float y);
-  public void moveTo(PVector delta);
+  public PVector getCords(){
+    return cords;
+  };
+  public PVector getSize(){
+   return size;
+  }
+
+  public int getType(){
+    return type;
+  }
+//fix later
+
+  public void move(float x, float y){
+    cords.x += x;
+    cords.y += y;
+  };
+  public void move(PVector delta){
+    cords.add(delta);
+  };
+  public void moveTo(float x, float y){
+    cords.x = x;
+    cords.y = y;
+  };
+  public void moveTo(PVector delta){
+    cords = delta;
+  };
+  public void draw(){
+    cords.add(vel);
+    // println(vel);
+  }
   //void setSize(PVector size);
   //void setSize(float x, float y);
-  public void draw();
+
 }
 
 
 
-class rect implements object {
-  PVector size;
-  PVector cords;
+class rect extends object implements entity{
+
   float acceleration;
-  int type = TYPE_RECT;
+  float defaultSize = 40;
+
+
   boolean collided;
-
-
   //constructor
   rect() {
-    this.size = new PVector(defaultSize, defaultSize);
+    super(new PVector(40, 40));
+    this.type = TYPE_RECT;
   }
   rect(PVector size) {
-    this.size = size;
+    super(size);
+    this.type = TYPE_RECT;
   }
   rect(float size) {
-    this.size = new PVector(size, size);
+    super(new PVector(size, size));
+    this.type = TYPE_RECT;
   }
   rect(float x, float y) {
-    this.size = new PVector(x, y);
+    super(new PVector(x, y));
+    this.type = TYPE_RECT;
   }
   rect(Rectangle rectangle) {
-    this.size = new PVector (rectangle.width, rectangle.height);
-    this.cords = new PVector (rectangle.x, rectangle.y);
+    super(new PVector (rectangle.width, rectangle.height), new PVector (rectangle.x, rectangle.y));
+    this.type = TYPE_RECT;
   }
 
   public boolean collision(object other) {
@@ -313,56 +432,32 @@ class rect implements object {
     return false;
   }
 
-  public void move(float x, float y) {
-    cords.x += x;
-    cords.y += y;
-  }
-  public void move(PVector delta) {
-    cords.add(delta);
-  }
-
-  public void moveTo(float x, float y) {
-    cords.x = x;
-    cords.y = y;
-  }
-  public void moveTo(PVector cord) {
-    cords = cord;
-  }
-
   public void draw() {
+    super.draw();
     rect(cords.x, cords.y, size.x, size.y);
   }
 
-  public int getType() {
-    return type;
-  }
-  public PVector getCords() {
-    return cords;
-  }
-  public PVector getSize() {
-    return size;
-  }
 }
 
 
-class ellipse implements object {
-  PVector size;
-  PVector cords = new PVector (50, 50);
+class ellipse extends object implements entity{
+
   float acceleration;
   int type = TYPE_ELLIPSE;
   boolean collided;
 
 
+
   //constructor
   ellipse(PVector size) {
-    this.size = size;
+    super(size);
   }
   ellipse() {
-    this.size = new PVector(defaultSize, defaultSize);
+    super(new PVector(40, 40));
+    // this.size = ;
   }
   ellipse(Rectangle rect) {
-    this.size = new PVector (rect.width, rect.height);
-    this.cords = new PVector (rect.x, rect.y);
+    super(new PVector (rect.width, rect.height), new PVector (rect.x, rect.y));
   }
 
   public boolean collision(object other) {
@@ -375,34 +470,11 @@ class ellipse implements object {
     return false;
   }
 
-  public void move(float x, float y) {
-    cords.x += x;
-    cords.y += y;
-  }
-  public void move(PVector delta) {
-    cords.add(delta);
-  }
-  public void moveTo(float x, float y) {
-    cords.x = x;
-    cords.y = y;
-  }
-  public void moveTo(PVector cord) {
-    cords = cord;
-  }
-
   public void draw() {
+    super.draw();
     ellipse(cords.x, cords.y, size.x, size.y);
   }
 
-  public int getType() {
-    return type;
-  }
-  public PVector getCords() {
-    return cords;
-  }
-  public PVector getSize() {
-    return size;
-  }
 }
   public void settings() {  size(1280, 720); }
   static public void main(String[] passedArgs) {

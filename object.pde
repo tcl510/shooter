@@ -123,6 +123,7 @@ public class object {
 
   PVector size;
   PVector cords;
+  PVector vel = new PVector(0,0);
   int type;
 
   object(PVector size, PVector cords){
@@ -160,6 +161,10 @@ public class object {
   void moveTo(PVector delta){
     cords = delta;
   };
+  void draw(){
+    cords.add(vel);
+    // println(vel);
+  }
   //void setSize(PVector size);
   //void setSize(float x, float y);
 
@@ -207,6 +212,7 @@ class rect extends object implements entity{
   }
 
   void draw() {
+    super.draw();
     rect(cords.x, cords.y, size.x, size.y);
   }
 
@@ -244,6 +250,7 @@ class ellipse extends object implements entity{
   }
 
   void draw() {
+    super.draw();
     ellipse(cords.x, cords.y, size.x, size.y);
   }
 
