@@ -60,12 +60,12 @@ public class Star {
   float intensity;
   float posx, posy;
   int r,g,b ;
-      
-    
+
+
   float fallRate = random(0.1, 9.81);
 
   Star() {
-    //random location 
+    //random location
     this.posx = (int) random(0, width);
     this.posy = (int) random(0, height);
     //random color rgb
@@ -74,7 +74,7 @@ public class Star {
     this.b = (int) random(0, 2);
     //random intensity
     this.intensity = random(0,2);
-    
+
   }
   void draw() {
     //fall at their own rate
@@ -83,15 +83,15 @@ public class Star {
     if (timeNow != (int)timeCount){
       //basically change into a random brightness each second
       intensity= random(0, 2);
-      
+
     }
     //depending on the color adjust brightness
     fill(r*255, g*255, b*255 * intensity);
-    
+
     noStroke();
     rectMode(CENTER);
     rect(posx, posy, 2, 2); //<>//
-    
+
     //update time
     updateTime();
   }

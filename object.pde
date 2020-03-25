@@ -6,7 +6,7 @@ rect[] rectangleToRect(Rectangle[] rectangle_array) { //<>//
   ArrayList<rect> rectList = new ArrayList<rect>();
   //rect[] rectList = new rect[length];
   //for (int i = 0; i <= length; i++){
-  //  //rectList[i] = 
+  //  //rectList[i] =
   //  rectList[i] = new rect(rectangle_array[i]);
   //}
   for (Rectangle i : rectangle_array) {
@@ -22,7 +22,7 @@ ellipse[] rectangleToEllipse(Rectangle[] rectangle_array) {
   ArrayList<ellipse> rectList = new ArrayList<ellipse>();
   //rect[] rectList = new rect[length];
   //for (int i = 0; i <= length; i++){
-  //  //rectList[i] = 
+  //  //rectList[i] =
   //  rectList[i] = new rect(rectangle_array[i]);
   //}
   for (Rectangle i : rectangle_array) {
@@ -32,10 +32,6 @@ ellipse[] rectangleToEllipse(Rectangle[] rectangle_array) {
 
   return rectList.toArray(new ellipse[rectList.size()]);
 }
-
-
-
-
 
 boolean ellipseWithEllipse(PVector cord, PVector size, PVector otherCord, PVector otherSize) {
   if (PVector.dist(cord, otherCord) < size.x+otherSize.x) {
@@ -102,11 +98,11 @@ PVector[] corners;
 PVector[] findCorners(PVector cords, PVector size) {
   PVector[] corners = {
     //top right corner
-    new PVector(cords.x + size.x/2, cords.y + size.y/2), 
+    new PVector(cords.x + size.x/2, cords.y + size.y/2),
     //bottom left corner
-    new PVector(cords.x - size.x/2, cords.y - size.y/2), 
+    new PVector(cords.x - size.x/2, cords.y - size.y/2),
     //bottom right corner
-    new PVector(cords.x + size.x/2, cords.y - size.y/2), 
+    new PVector(cords.x + size.x/2, cords.y - size.y/2),
     //top left corner
     new PVector(cords.x - size.x/2, cords.y + size.y/2)
 
@@ -114,52 +110,90 @@ PVector[] findCorners(PVector cords, PVector size) {
   return corners;
 }
 
-interface object {
+public interface entity{
+  boolean collision(object other);
+  void draw();
+
+}
+
+public class object {
   final int TYPE_RECT = 1;
   final int TYPE_ELLIPSE = 2;
   final int defaultSize = 40;
 
-  PVector getCords();
-  PVector getSize();
-  int getType();
+  PVector size;
+  PVector cords;
+  int type;
 
-  boolean collision(object other);
+  object(PVector size, PVector cords){
+    this.size = size;
+    this.cords = cords;
+  }
+  object(PVector size){
+    this.size = size;
+    this.cords = new PVector(50,50);
+  }
 
-  void move(float x, float y);
-  void move(PVector delta);
-  void moveTo(float x, float y);
-  void moveTo(PVector delta);
+  PVector getCords(){
+    return cords;
+  };
+  PVector getSize(){
+   return size;
+  }
+
+  int getType(){
+    return type;
+  }
+//fix later
+
+  void move(float x, float y){
+    cords.x += x;
+    cords.y += y;
+  };
+  void move(PVector delta){
+    cords.add(delta);
+  };
+  void moveTo(float x, float y){
+    cords.x = x;
+    cords.y = y;
+  };
+  void moveTo(PVector delta){
+    cords = delta;
+  };
   //void setSize(PVector size);
   //void setSize(float x, float y);
-  void draw();
+
 }
 
 
 
-class rect implements object {
-  PVector size;
-  PVector cords;
+class rect extends object implements entity{
+
   float acceleration;
-  int type = TYPE_RECT;
+  float defaultSize = 40;
+
+
   boolean collided;
-
-
   //constructor
   rect() {
-    this.size = new PVector(defaultSize, defaultSize);
+    super(new PVector(40, 40));
+    this.type = TYPE_RECT;
   }
   rect(PVector size) {
-    this.size = size;
+    super(size);
+    this.type = TYPE_RECT;
   }
   rect(float size) {
-    this.size = new PVector(size, size);
+    super(new PVector(size, size));
+    this.type = TYPE_RECT;
   }
   rect(float x, float y) {
-    this.size = new PVector(x, y);
+    super(new PVector(x, y));
+    this.type = TYPE_RECT;
   }
   rect(Rectangle rectangle) {
-    this.size = new PVector (rectangle.width, rectangle.height);
-    this.cords = new PVector (rectangle.x, rectangle.y);
+    super(new PVector (rectangle.width, rectangle.height), new PVector (rectangle.x, rectangle.y));
+    this.type = TYPE_RECT;
   }
 
   boolean collision(object other) {
@@ -172,56 +206,31 @@ class rect implements object {
     return false;
   }
 
-  void move(float x, float y) {
-    cords.x += x;
-    cords.y += y;
-  }
-  void move(PVector delta) {
-    cords.add(delta);
-  }
-
-  void moveTo(float x, float y) {
-    cords.x = x;
-    cords.y = y;
-  }
-  void moveTo(PVector cord) {
-    cords = cord;
-  }
-
   void draw() {
     rect(cords.x, cords.y, size.x, size.y);
   }
 
-  public int getType() {
-    return type;
-  }
-  public PVector getCords() {
-    return cords;
-  }
-  public PVector getSize() {
-    return size;
-  }
 }
 
 
-class ellipse implements object {
-  PVector size;
-  PVector cords = new PVector (50, 50);
+class ellipse extends object implements entity{
+
   float acceleration;
   int type = TYPE_ELLIPSE;
   boolean collided;
 
 
+
   //constructor
   ellipse(PVector size) {
-    this.size = size;
+    super(size);
   }
   ellipse() {
-    this.size = new PVector(defaultSize, defaultSize);
+    super(new PVector(40, 40));
+    // this.size = ;
   }
   ellipse(Rectangle rect) {
-    this.size = new PVector (rect.width, rect.height);
-    this.cords = new PVector (rect.x, rect.y);
+    super(new PVector (rect.width, rect.height), new PVector (rect.x, rect.y));
   }
 
   boolean collision(object other) {
@@ -234,32 +243,8 @@ class ellipse implements object {
     return false;
   }
 
-  void move(float x, float y) {
-    cords.x += x;
-    cords.y += y;
-  }
-  void move(PVector delta) {
-    cords.add(delta);
-  }
-  void moveTo(float x, float y) {
-    cords.x = x;
-    cords.y = y;
-  }
-  void moveTo(PVector cord) {
-    cords = cord;
-  }
-
   void draw() {
     ellipse(cords.x, cords.y, size.x, size.y);
   }
 
-  public int getType() {
-    return type;
-  }
-  public PVector getCords() {
-    return cords;
-  }
-  public PVector getSize() {
-    return size;
-  }
 }
