@@ -1,5 +1,5 @@
 //array of stars
-Star[] stars; //<>// //<>// //<>//
+Star[] stars; //<>//
 
 //generate new stars
 void newStars(){
@@ -24,9 +24,10 @@ void bg() {
 float timeCount;
 void time() {
   timeCount += 1/frameRate;
+  println(timeCount);
 }
 
-float speed = 0.5;
+float speed = 25;
 
 public class Star {
   int timeNow;
@@ -63,7 +64,7 @@ public class Star {
 
     noStroke();
     rectMode(CENTER);
-    rect(posx, posy, 2, 2); //<>// //<>// //<>//
+    rect(posx, posy, 2, 2); //<>//
 
     //update time
     updateTime();
@@ -78,6 +79,6 @@ public class Star {
       posy = 0;
     }
     //update position
-    posy += fallRate * speed;
+    posy += fallRate * speed * 1/frameRate;
   }
 }

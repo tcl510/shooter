@@ -2,8 +2,9 @@
 
 
 void setup() {
-  size(1280, 720);
+  size(480, 720);
   galaga_setup();
+  frameRate(100);
 }
 
 void draw() {
@@ -23,7 +24,6 @@ void galaga() {
   bg();
   //draw objects
   player.draw();
-  println(bullets.size());
   for (Bullet bullet : bullets) {
     //print(bullet.cords);
 

@@ -23,7 +23,8 @@ class Player extends rect{
       if (right){
         this.vel.x += playerMoveSpeed;
       }
-      // cords.add(vel);
+      
+      
     }
 
     void shoot(){

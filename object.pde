@@ -1,6 +1,6 @@
 import java.awt.Rectangle;
 
-rect[] rectangleToRect(Rectangle[] rectangle_array) { //<>// //<>// //<>//
+rect[] rectangleToRect(Rectangle[] rectangle_array) { //<>//
 
   //int length = rectangle_array.length;
   ArrayList<rect> rectList = new ArrayList<rect>();
@@ -162,7 +162,10 @@ public class object {
     cords = delta;
   };
   void draw(){
-    cords.add(this.vel);
+    //calc the adjust to framerate vel then move the object
+    PVector adjustedVel = PVector.mult(vel, (60/frameRate));
+    //move the object
+    cords.add(adjustedVel);
     // println(vel);
   }
   //void setSize(PVector size);

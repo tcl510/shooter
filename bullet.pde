@@ -8,10 +8,10 @@ class Bullet extends rect{
       super(new PVector(10,10), start);
       //this.cords = start;
       this.vel = new PVector(0, -bulletVelocity);
-      print("new bullet");
+      //print("new bullet");
     }
     boolean finished(){
-      if (cords.y < 0){
+      if (cords.y <= 0){
         return true;
       }
       ////if exploded
