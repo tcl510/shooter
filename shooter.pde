@@ -2,9 +2,9 @@
 
 
 void setup() {
-  size(480, 720);
+  size(672, 864);
   galaga_setup();
-  frameRate(100);
+  frameRate(10000);
 }
 
 void draw() {
