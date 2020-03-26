@@ -1,6 +1,6 @@
 import java.awt.Rectangle;
 
-rect[] rectangleToRect(Rectangle[] rectangle_array) { //<>//
+rect[] rectangleToRect(Rectangle[] rectangle_array) { //<>// //<>// //<>//
 
   //int length = rectangle_array.length;
   ArrayList<rect> rectList = new ArrayList<rect>();
@@ -162,7 +162,7 @@ public class object {
     cords = delta;
   };
   void draw(){
-    cords.add(vel);
+    cords.add(this.vel);
     // println(vel);
   }
   //void setSize(PVector size);
@@ -199,6 +199,9 @@ class rect extends object implements entity{
   rect(Rectangle rectangle) {
     super(new PVector (rectangle.width, rectangle.height), new PVector (rectangle.x, rectangle.y));
     this.type = TYPE_RECT;
+  }
+  rect(PVector size, PVector cords){
+    super(size, cords); 
   }
 
   boolean collision(object other) {
