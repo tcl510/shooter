@@ -1,8 +1,9 @@
 
+ArrayList<Enemy> enemy = new ArrayList<Enemy>();
 
-class enemy extends rect {
+class Enemy extends rect {
 
-  enemy(int type){
+  Enemy(int type){
     super();
   }
   

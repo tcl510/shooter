@@ -117,9 +117,9 @@ public interface entity{
 }
 
 public class object {
-  final int TYPE_RECT = 1;
-  final int TYPE_ELLIPSE = 2;
-  final int defaultSize = 40;
+  final static int TYPE_RECT = 1;
+  final static int TYPE_ELLIPSE = 2;
+  final static int defaultSize = 40;
 
   PVector size;
   PVector cords;
