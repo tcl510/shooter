@@ -24,7 +24,7 @@ void bg() {
 float timeCount;
 void time() {
   timeCount += 1/frameRate;
-  println(timeCount);
+  //println(timeCount);
 }
 
 float speed = 25;

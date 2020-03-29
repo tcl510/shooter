@@ -16,7 +16,9 @@ void draw() {
 
 
 
-rect[] enemies;
+Enemy[] enemies = {new Enemy(100,100),
+new Enemy(140, 100), new Enemy(180,100)
+};
 Player player;
 //neatly wrapped game to be put in draw
 void galaga() {
@@ -24,20 +26,37 @@ void galaga() {
   bg();
   //draw objects
   player.draw();
+  //draw bullets
   for (Bullet bullet : bullets) {
     //print(bullet.cords);
-
-     
-     if (bullet.cords.y > 0){
          bullet.draw();
-     }
    }
+   //delete bullets
   for (int i = bullets.size() - 1; i >= 0; i--) {
     Bullet bullet = bullets.get(i);
     if (bullet.finished()) {
       bullets.remove(i);
     }
   }
+  //draw enemies and check for hit
+  for (Enemy enemy: enemies){
+    for(Bullet bullet: bullets){
+     //if (rectWithRect(bullet.cords, bullet.size, enemy.cords, enemy.size)){ //<>//
+       if(!enemy.hit){
+       if (enemy.collision(bullet)){
+       bullet.shot = true;
+       enemy.hit = true;
+       }
+     }
+    }
+    //if (enemy.collision(player)){
+    // //enemy.hit = true; 
+    //}
+    if (!enemy.hit){
+     enemy.draw();
+    }
+  }
+  
 }
 //game setup
 void galaga_setup() {

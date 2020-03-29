@@ -42,8 +42,10 @@ boolean ellipseWithEllipse(PVector cord, PVector size, PVector otherCord, PVecto
 }
 
 boolean rectWithRect(PVector cord, PVector size, PVector otherCord, PVector otherSize) {
+  println(cord, otherCord);
   PVector[] corners = findCorners(cord, size);
   PVector[] other_corners = findCorners(otherCord, otherSize);
+  if (size.mag() > otherSize.mag()){
   for (PVector i : other_corners) {
     if (i.x < corners[0].x && i.x > corners[3].x) {
       //println("collidedx");
@@ -53,6 +55,19 @@ boolean rectWithRect(PVector cord, PVector size, PVector otherCord, PVector othe
       }
     }
   }
+  } else {
+    for (PVector i : corners) {
+    if (i.x < other_corners[0].x && i.x > other_corners[3].x) {
+      println("collidedx");
+      if (i.y < other_corners[0].y && i.y > other_corners[1].y) {
+        println("collided");
+        return true;
+      }
+    }
+  }
+    
+  }
+  println("nope");
   return false;
 }
 
@@ -83,7 +98,7 @@ boolean rectWithEllipse(PVector boxCord, PVector boxSize, PVector ellipseCord, P
   PVector closest = new PVector(closestX, closestY);
 
   // Calculate the distance between the circle's center and this closest point
-  return PVector.dist(closest, boxCord) + ellipseSize.x/2 < PVector.dist(boxCord, ellipseCord);
+  return PVector.dist(boxCord, ellipseCord) <= PVector.dist(closest, boxCord) + ellipseSize.x/2;
 }
 
 boolean rectWithEllipse(rect rect, ellipse ellipse) {
@@ -111,15 +126,17 @@ PVector[] findCorners(PVector cords, PVector size) {
 }
 
 public interface entity{
+    final static int TYPE_RECT = 1;
+  final static int TYPE_ELLIPSE = 2;
+  final static int defaultSize = 40;
   boolean collision(object other);
   void draw();
 
 }
 
+  
 public class object {
-  final static int TYPE_RECT = 1;
-  final static int TYPE_ELLIPSE = 2;
-  final static int defaultSize = 40;
+
 
   PVector size;
   PVector cords;
@@ -143,6 +160,7 @@ public class object {
   }
 
   int getType(){
+    println(type);
     return type;
   }
 //fix later
@@ -204,7 +222,12 @@ class rect extends object implements entity{
     this.type = TYPE_RECT;
   }
   rect(PVector size, PVector cords){
-    super(size, cords); 
+    super(size, cords);
+    this.type = TYPE_RECT;
+  }
+  rect(PVector size, float x, float y){
+   super(size, new PVector(x,y));
+   this.type = TYPE_RECT;
   }
 
   boolean collision(object other) {
@@ -228,7 +251,7 @@ class rect extends object implements entity{
 class ellipse extends object implements entity{
 
   float acceleration;
-  int type = TYPE_ELLIPSE;
+  //int type = TYPE_ELLIPSE;
   boolean collided;
 
 
@@ -236,13 +259,32 @@ class ellipse extends object implements entity{
   //constructor
   ellipse(PVector size) {
     super(size);
+    this.type = TYPE_ELLIPSE;
   }
   ellipse() {
     super(new PVector(40, 40));
-    // this.size = ;
+    this.type = TYPE_ELLIPSE;
   }
   ellipse(Rectangle rect) {
     super(new PVector (rect.width, rect.height), new PVector (rect.x, rect.y));
+    this.type = TYPE_ELLIPSE;
+  }
+  
+  ellipse(float size) {
+    super(new PVector(size, size));
+    this.type = TYPE_ELLIPSE;
+  }
+  ellipse(float x, float y) {
+    super(new PVector(x, y));
+    this.type = TYPE_ELLIPSE;
+  }
+    ellipse(PVector size, PVector cords){
+    super(size, cords);
+    this.type = TYPE_ELLIPSE;
+  }
+  ellipse(PVector size, float x, float y){
+   super(size, new PVector(x,y)); 
+   this.type = TYPE_ELLIPSE;
   }
 
   boolean collision(object other) {

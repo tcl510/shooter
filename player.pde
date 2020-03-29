@@ -1,9 +1,11 @@
 class Player extends rect{
   
-    float playerMoveSpeed = 10;
+    //float playerMoveSpeed = 10;
+     float playerMoveSpeed = 5;
     boolean up, down, left, right, isShooting = false;
 
     Player(){
+      this.size = new PVector(50,50);
         this.cords = new PVector(width/2, height-30);
         // println(width, height);
     }
