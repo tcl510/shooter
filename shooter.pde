@@ -44,6 +44,9 @@ void galaga() {
 }
 
 
+void mousePressed(){
+  println(new PVector(mouseX, mouseY));
+}
 
 
 //controller function
