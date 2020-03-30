@@ -13,12 +13,14 @@ class Player extends rect{
     float playerMoveSpeed = 5;
     void move(){
       //reset velocity, using the object system, the player moves according to velocity, so inorder to move the player within the object system, instead of
-      //directly affecting the position, you manupliate the velocity instead
+      //directly affecting the position, you manupliate the velocity instead, by adding velocities u can allow for multiple inputs at the same time.
       this.vel = new PVector(0,0);
       if (up){
+        //disabled for this specific gamemode
         //this.vel.y -= playerMoveSpeed;
       }
       if (down){
+        //disabled for this specific gamemode
         //this.vel.y += playerMoveSpeed;
       }
       if (left){
@@ -32,20 +34,24 @@ class Player extends rect{
     }
 
     void shoot(){
+      //if this function is called, the isShooting variable is controlled by the keyinput, when the key is pressed down, the isShooting variable changes, so until the key is released another shot cannot be made
         if (!isShooting){
+        //add a new bullet to the list of bullets
         bullets.add(new Bullet(new PVector(cords.x, cords.y)));
-        }
-        isShooting = true;
+        //play sound effect
         pew.play();
+        }
+        //make this function not work until the key is released
+        isShooting = true;
+        
     }
     
     void draw(){
-      
+      //update velocity
       move();
-      
+      //color the player
       fill(255);
+      //draw according to parent
       super.draw();
-      // vel = new PVector(0,0);
-      // println(cords);
     }
 }

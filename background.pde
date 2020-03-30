@@ -12,20 +12,17 @@ void newStars(){
     stars[i] = new Star();
   }
 }
-//background rendering
+//background rendering (bg for background)
 void bg() {
+  //clear the background to black
   background(0);
+  //loop thru list of stars
   for(Star i: stars){
     //draw all the stars
     i.draw();
   }
 }
 
-float timeCount;
-void time() {
-  timeCount += 1/frameRate;
-  //println(timeCount);
-}
 
 float speed = 25;
 
@@ -33,7 +30,7 @@ public class Star {
   int timeNow;
   float intensity;
   float posx, posy;
-  int r,g,b ;
+  int r,g,b;
 
 
   float fallRate = random(0.1, 9.81);
