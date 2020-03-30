@@ -160,7 +160,6 @@ public class object {
   }
 
   int getType(){
-    println(type);
     return type;
   }
 //fix later
@@ -242,6 +241,7 @@ class rect extends object implements entity{
 
   void draw() {
     super.draw();
+    noStroke();
     rect(cords.x, cords.y, size.x, size.y);
   }
 
@@ -299,6 +299,7 @@ class ellipse extends object implements entity{
 
   void draw() {
     super.draw();
+    noStroke();
     ellipse(cords.x, cords.y, size.x, size.y);
   }
 

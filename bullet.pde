@@ -25,6 +25,7 @@ class Bullet extends ellipse {
     return false;
   }
   void draw() {
+    noStroke();
     super.draw();
   }
 }
