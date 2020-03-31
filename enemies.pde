@@ -34,7 +34,7 @@ Enemy[] enemies = {
   new Enemy(-280, 400, 380, 100), 
   new Enemy(-320, 400, 420, 100), 
   new Enemy(-360, 400, 460, 100), 
-  new Enemy(-400, 400, 500, 100)
+  new Enemy(-400, 400, 500, 100),
 };
 
 
@@ -81,16 +81,11 @@ class Pattern {
   PVector getVel() {
     if (pattern[step].checkDone()) {
       step++;
-      constrain(step, 0, pattern.length-1);
       if (step > pattern.length-1) {
-        step--;
         done = true;
       }
-
-      return pattern[step].correction();
-      //return pattern[step-1].getVel();
+      step = constrain(step, 0, pattern.length-1);
     };
-    println(attachment.cords);
     return pattern[step].getVel();
   }
 }
@@ -100,52 +95,37 @@ class PatternA extends Pattern {
 
   PatternA(PVector startPos, PVector endPos, Enemy attachment) {
 
-    movementList.add(new Straight(startPos, new PVector(100, 400), Movement.DEFAULT_SPEED, attachment));
-    //movementList.add(new Loop(movementList.get(index), Loop.DEFAULT_RADIUS, Loop.LEFT, 160));
-    //index++;
-    movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(200,600), attachment));
-    movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(10,10), attachment));
-    movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(100,600), attachment));
+    movementList.add(new Straight(startPos, new PVector(420, 400), Movement.DEFAULT_SPEED, attachment));
+    movementList.add(new Loop(movementList.get(movementList.size()-1), Loop.DEFAULT_RADIUS, Loop.RIGHT, 120, attachment));
+    movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(200, 600), attachment));
+    movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(10, 10), attachment));
+    movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(100, 600), attachment));
     movementList.add(new Straight(movementList.get(movementList.size()-1), endPos, attachment));
     this.pattern = movementList.toArray(new Movement[movementList.size()]);
     this.attachment = attachment;
   }
 
 
-  PVector getVel() {
-    if (pattern[step].checkDone()) {
-      step++;
-
-      step = constrain(step, 0, pattern.length-1);
-      println (step);
-      //if (step > pattern.length-1) {
-      //  step--;
-      //  done = true;
-      //}
-      pattern[step].currentPos = attachment.cords;
-      pattern[step].startPos = attachment.cords.copy();
-
-      //return pattern[step].correction();
-    };
-    return pattern[step].getVel();
-  }
+  //PVector getVel() {
+  //    return new PVector(0,0);
+  //}
 }
 
 
 class Movement {
-  public final static float DEFAULT_SPEED = 2;
+  public final static float DEFAULT_SPEED = 4;
   PVector startPos, endPos;
   PVector velocity = new PVector(0, 0);
   boolean done = false;
   float magnitude;
   PVector currentPos;
-  
-  
-  Movement(){
+
+
+  Movement() {
   }
-  
-  Movement(Enemy attachment){
-   this.currentPos = attachment.cords;     
+
+  Movement(Enemy attachment) {
+    this.currentPos = attachment.cords;
   }
 
   PVector getStarting() {
@@ -166,7 +146,6 @@ class Movement {
     PVector distance = new PVector( -(currentPos.x - endPos.x), -(currentPos.y - endPos.y));
     return distance;
   }
-  
 }
 
 
@@ -180,10 +159,10 @@ class Straight extends Movement {
     this.velocity = PVector.sub(startPos, endPos);
     velocity.setMag(-magnitude);
   }
-    Straight(Movement previous, PVector endPos, Enemy attachment) {
-      this(previous.endPos, endPos, previous.magnitude, attachment);
+  Straight(Movement previous, PVector endPos, Enemy attachment) {
+    this(previous.endPos, endPos, previous.magnitude, attachment);
   }
-  
+
   PVector getVel() {
     if (startPos.dist(PVector.add(currentPos, velocity)) >= startPos.dist(endPos)) {
       if (!done) {
@@ -199,7 +178,7 @@ class Straight extends Movement {
   }
   boolean checkDone() {
     if (startPos.dist(currentPos) >= startPos.dist(endPos)) {
-
+      this.endPos = currentPos.copy();
       done = true;
       return true;
     }
@@ -249,11 +228,9 @@ class Loop extends Movement {
     this.velocity = velocity;
     velocity.setMag(-magnitude);
     this.currentPos = startPos;
-    //println(magnitude);
   }
-  Loop(Movement previous, float radius, float direction, float limit) {
-    print(previous.velocity);
-
+  Loop(Movement previous, float radius, float direction, float limit, Enemy attachment) {
+    super(attachment);
     this.centerPoint = previous.velocity.copy();
     centerPoint.setMag(-radius);
     centerPoint.rotate(PI + (HALF_PI * direction));
@@ -261,43 +238,44 @@ class Loop extends Movement {
     this.t = previous.velocity.heading() + (PI + (HALF_PI * direction));
     this.loopEnd = t + (TWO_PI/100 * limit * direction);
 
-    this.startPos = previous.endPos;
+    this.startPos = previous.endPos.copy();
+    println(startPos);
     this.endPos = pointInCircle(loopEnd);
 
     this.direction = direction;
     this.magnitude = previous.magnitude;
-    println(magnitude);
 
     this.radius = radius;
-    this.velocity = previous.velocity;
+    this.velocity = previous.velocity.copy();
     velocity.setMag(-magnitude);
-    this.currentPos = startPos;
+    //this.currentPos = startPos;
   }
 
   PVector pointInCircle(float t) {
     return new PVector (centerPoint.x + radius*cos(t), centerPoint.y + radius*sin(t));
   } 
-  PVector getVel(Enemy enemy) {
-
+  PVector getVel() {
+    //currentPos = attachment.cords.copy();
     //ellipse(centerPoint.x, centerPoint.y, 10,10);
-    PVector pos = pointInCircle(t);
+    println("here"); //<>//
+    //PVector pos = pointInCircle(t);
     t -= (-direction)*(magnitude/radius);
 
 
-    PVector pos2 = PVector.sub(pos, pointInCircle(t));
-    //pos2.mult(-1);
-    velocity = pos2;
+//    PVector pos2 = PVector.sub(pos, pointInCircle(t));
+//    //pos2.mult(-1);
+//    velocity = pos2;
 
     //println(centerPoint);
     velocity.x = -(currentPos.x - (centerPoint.x+radius*cos(t)));
     velocity.y = -(currentPos.y - (centerPoint.y+radius*sin(t)));
-    ;
-    currentPos.add(velocity);
+    
     return velocity;
   }
   boolean checkDone() {
     if (t < loopEnd && direction == 1) return false;
-    if (t < loopEnd && direction == -1) return false;
+    if (t > loopEnd && direction == -1) return false;
+    endPos = currentPos.copy();
     done = true;
     return true;
   }

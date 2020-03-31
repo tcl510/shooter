@@ -61,7 +61,7 @@ public class Star {
 
     noStroke();
     rectMode(CENTER);
-    rect(posx, posy, 2, 2); //<>//
+    rect(posx, posy, 2, 2);
 
     //update time
     updateTime();

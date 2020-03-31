@@ -52,17 +52,17 @@ void mousePressed(){
 //controller function
 void keyPressed() {
   //galaga movement
-  if (key == 'a' || keyCode == LEFT) player.left = true;
-  if (key == 'd' || keyCode == RIGHT) player.right = true;
-  if (key == 'w' || keyCode == UP) player.up = true;
-  if (key == 's' || keyCode == DOWN) player.down = true;
+  if (key == 'a' || keyCode == LEFT || key == 'A') player.left = true;
+  if (key == 'd' || keyCode == RIGHT || key == 'D') player.right = true;
+  if (key == 'w' || keyCode == UP || key == 'W') player.up = true;
+  if (key == 's' || keyCode == DOWN || key == 'S') player.down = true;
   if (key == ' ') player.shoot();
 }
 void keyReleased() {
   //galaga movement
-  if (key == 'a' || keyCode == LEFT) player.left = false;
-  if (key == 'd' || keyCode == RIGHT) player.right = false;
-  if (key == 'w' || keyCode == UP) player.up = false;
-  if (key == 's' || keyCode == DOWN) player.down = false;
+  if (key == 'a' || keyCode == LEFT || key == 'A') player.left = false;
+  if (key == 'd' || keyCode == RIGHT || key == 'D') player.right = false;
+  if (key == 'w' || keyCode == UP || key == 'W') player.up = false;
+  if (key == 's' || keyCode == DOWN || key == 'S') player.down = false;
   if (key == ' ') player.isShooting = false;
 }
