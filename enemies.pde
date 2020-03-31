@@ -94,12 +94,12 @@ class PatternA extends Pattern {
   ArrayList<Movement> movementList = new ArrayList<Movement>();
 
   PatternA(PVector startPos, PVector endPos, Enemy attachment) {
-
-    movementList.add(new Straight(startPos, new PVector(420, 400), Movement.DEFAULT_SPEED, attachment));
-    movementList.add(new Loop(movementList.get(movementList.size()-1), Loop.DEFAULT_RADIUS, Loop.RIGHT, 200, attachment));
+    movementList.add(new Straight(startPos, new PVector(0, 400), Movement.DEFAULT_SPEED, attachment));
     movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(200, 600), attachment));
-    movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(20, 10), attachment));
-    movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(100, 600), attachment));
+    movementList.add(new Loop(movementList.get(movementList.size()-1), Loop.DEFAULT_RADIUS, Loop.LEFT, 130, attachment));
+    //movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(200, 600), attachment));
+    movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(200, 200), attachment));
+    //movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(100, 600), attachment));
     movementList.add(new Straight(movementList.get(movementList.size()-1), endPos, attachment));
     this.pattern = movementList.toArray(new Movement[movementList.size()]);
     this.attachment = attachment;
@@ -136,11 +136,6 @@ class Movement {
   boolean checkDone() {
     return done;
   }
-
-  PVector correction() {
-    PVector distance = new PVector( -(currentPos.x - endPos.x), -(currentPos.y - endPos.y));
-    return distance;
-  }
 }
 
 
@@ -159,21 +154,38 @@ class Straight extends Movement {
   }
 
   PVector getVel() {
-    if (startPos.dist(PVector.add(currentPos, velocity)) >= startPos.dist(endPos)) {
-      if (!done) {
-        done = true;
-        PVector distance = new PVector( -(currentPos.x - endPos.x), -(currentPos.y - endPos.y));
-        return distance;
-      } else {
-        return new PVector(0, 0);
-      }
-    } else {
-      return velocity;
+    //if (startPos.dist(PVector.add(currentPos, velocity)) >= startPos.dist(endPos)) {
+    //  if (!done) {
+    //    done = true;
+    //    PVector distance = new PVector( -(currentPos.x - endPos.x), -(currentPos.y - endPos.y));
+    //    return velocity;
+    //  } else {
+    //    return new PVector (0,0);
+    //  }
+    //} else {
+    //  return velocity;
+    if (!done){
+      if (magnitude >= currentPos.dist(endPos)){
+        PVector temp = velocity.copy();
+        temp.setMag(currentPos.dist(endPos));
+        return temp;
+      } else return velocity;
     }
+    
+    return new PVector(0,0);
   }
   boolean checkDone() {
-    if (startPos.dist(currentPos) >= startPos.dist(endPos)) {
-      this.endPos = currentPos.copy();
+    //if (startPos.dist(currentPos) == startPos.dist(endPos)) {
+    //  this.endPos = currentPos.copy();
+    //  done = true;
+    //  return true;
+    //}
+     if (startPos.dist(currentPos) >= startPos.dist(endPos)) {
+      // //print("fix");
+      ////currentPos = endPos.copy();
+      ////this.endPos = currentPos.copy();
+      //velocity = PVector.sub(currentPos, this.endPos);
+      //println(velocity);
       done = true;
       return true;
     }
@@ -221,21 +233,9 @@ class Loop extends Movement {
     return new PVector (centerPoint.x + radius*cos(t), centerPoint.y + radius*sin(t));
   } 
   PVector getVel() {
-    //currentPos = attachment.cords.copy();
-    //ellipse(centerPoint.x, centerPoint.y, 10,10);
-    println("here");
-    //PVector pos = pointInCircle(t);
     t -= (-direction)*(magnitude/radius);
-
-
-//    PVector pos2 = PVector.sub(pos, pointInCircle(t));
-//    //pos2.mult(-1);
-//    velocity = pos2;
-
-    //println(centerPoint);
     velocity.x = -(currentPos.x - (centerPoint.x+radius*cos(t)));
     velocity.y = -(currentPos.y - (centerPoint.y+radius*sin(t)));
-    
     return velocity;
   }
   boolean checkDone() {
