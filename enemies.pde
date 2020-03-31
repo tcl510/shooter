@@ -25,6 +25,7 @@ static final PVector defaultEnemySize = new PVector(20, 20);
 
 Enemy[] enemies = {
   new Enemy(0, 400, 100, 100), 
+  new Enemy(0, 400, 100, 100), 
   new Enemy(-40, 400, 140, 100), 
   new Enemy(-80, 400, 180, 100), 
   new Enemy(-120, 400, 220, 100), 
@@ -34,11 +35,11 @@ Enemy[] enemies = {
   new Enemy(-280, 400, 380, 100), 
   new Enemy(-320, 400, 420, 100), 
   new Enemy(-360, 400, 460, 100), 
-  new Enemy(-400, 400, 500, 100),
+  new Enemy(-400, 400, 500, 100), 
 };
 
 
-class Enemy extends ellipse {
+class Enemy extends rect {
 
   boolean hit = false;
   Pattern entry = new Pattern();
@@ -65,6 +66,7 @@ class Enemy extends ellipse {
     if (entry != null) {
       this.vel = entry.getVel();
     }
+    ellipse(100, 100, 10, 10);
     super.draw();
   }
 }
@@ -82,9 +84,20 @@ class Pattern {
     if (pattern[step].checkDone()) {
       step++;
       if (step > pattern.length-1) {
-        done = true;
+        step = constrain(step, 0, pattern.length-1);
+        if (!done) {
+          done = true;
+          return pattern[step].getCorrection();
+        }
+
+        step = constrain(step, 0, pattern.length-1);
+        return new PVector(0, 0);
       }
       step = constrain(step, 0, pattern.length-1);
+
+      //println(startPos, currentPos);
+      pattern[step].startPos = attachment.cords.copy();
+      println(pattern[step].startPos, attachment.cords);
     };
     return pattern[step].getVel();
   }
@@ -96,11 +109,13 @@ class PatternA extends Pattern {
   PatternA(PVector startPos, PVector endPos, Enemy attachment) {
     movementList.add(new Straight(startPos, new PVector(0, 400), Movement.DEFAULT_SPEED, attachment));
     movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(200, 600), attachment));
-    movementList.add(new Loop(movementList.get(movementList.size()-1), Loop.DEFAULT_RADIUS, Loop.LEFT, 130, attachment));
+    movementList.add(new Loop(movementList.get(movementList.size()-1), Loop.DEFAULT_RADIUS, Loop.LEFT, 30, attachment));
     //movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(200, 600), attachment));
     movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(200, 200), attachment));
     //movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(100, 600), attachment));
+    movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(200, 400), attachment));
     movementList.add(new Straight(movementList.get(movementList.size()-1), endPos, attachment));
+    //movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(100, 100), attachment));
     this.pattern = movementList.toArray(new Movement[movementList.size()]);
     this.attachment = attachment;
   }
@@ -108,7 +123,7 @@ class PatternA extends Pattern {
 
 
 class Movement {
-  public final static float DEFAULT_SPEED = 4;
+  public final static float DEFAULT_SPEED = 3;
   PVector startPos, endPos;
   PVector velocity = new PVector(0, 0);
   boolean done = false;
@@ -136,10 +151,16 @@ class Movement {
   boolean checkDone() {
     return done;
   }
+  PVector getCorrection() {
+    PVector temp = PVector.sub(currentPos, endPos);
+    temp.mult(-1);
+    return temp;
+  }
 }
 
 
 class Straight extends Movement {
+  Boolean firstTime = true;
 
   Straight(PVector startPos, PVector endPos, float magnitude, Enemy attachment) {
     super(attachment);
@@ -164,15 +185,24 @@ class Straight extends Movement {
     //  }
     //} else {
     //  return velocity;
-    if (!done){
-      if (magnitude >= currentPos.dist(endPos)){
-        PVector temp = velocity.copy();
-        temp.setMag(currentPos.dist(endPos));
-        return temp;
-      } else return velocity;
+    //if (!done){
+    //println(startPos);
+
+    //if (magnitude* (60/frameRate) >= currentPos.dist(endPos)){
+
+    //  PVector temp = velocity.copy();
+    //  temp.setMag(currentPos.dist(endPos));
+    //  return temp;
+    //} else 
+    if (firstTime) {
+      velocity = PVector.sub(currentPos, endPos);
+      velocity.setMag(-magnitude);
+      firstTime = false;
     }
-    
-    return new PVector(0,0);
+    return velocity;
+    //}
+
+    //return new PVector(0,0);
   }
   boolean checkDone() {
     //if (startPos.dist(currentPos) == startPos.dist(endPos)) {
@@ -180,13 +210,13 @@ class Straight extends Movement {
     //  done = true;
     //  return true;
     //}
-     if (startPos.dist(currentPos) >= startPos.dist(endPos)) {
-      // //print("fix");
-      ////currentPos = endPos.copy();
-      ////this.endPos = currentPos.copy();
-      //velocity = PVector.sub(currentPos, this.endPos);
-      //println(velocity);
+    //PVector adjustedVel = PVector.mult(vel, (60/frameRate));
+    //if (endPos.dist(currentPos) <= magnitude/(60/frameRate)) {
+    if (startPos.dist(currentPos) >= startPos.dist(endPos)) {
+      //println(startPos.dist(currentPos) - startPos.dist(endPos));
       done = true;
+      //endPos = currentPos.copy();
+      //println(PVector.add(endPos.a
       return true;
     }
     return done;
@@ -203,19 +233,21 @@ class Loop extends Movement {
   float direction;
   public final static float RIGHT = 1;
   public final static float LEFT = -1;
+  boolean firstTime = true;
 
   Loop(PVector startPos, PVector velocity, float radius, float direction, float limit, float magnitude, Enemy attachment) {
     super(attachment);
     this.centerPoint = velocity.copy();
     centerPoint.setMag(-radius);
     centerPoint.rotate(PI + (HALF_PI * direction));
-    centerPoint.add(startPos);
+    centerPoint.add(startPos);//this is it
+    //centerPoint.add(attachment.cords);
     this.t = velocity.heading() + (PI + (HALF_PI * direction));
     this.loopEnd = t + (TWO_PI/100 * limit * direction);
 
     this.startPos = startPos;
-    println(startPos);
     this.endPos = pointInCircle(loopEnd);
+    //this.endPos = currentPos;
 
     this.direction = direction;
     this.magnitude = magnitude;
@@ -225,24 +257,40 @@ class Loop extends Movement {
     velocity.setMag(-magnitude);
     //this.currentPos = startPos;
   }
-   Loop(Movement previous, float radius, float direction, float limit, Enemy attachment) {
-     this(previous.endPos.copy(), previous.velocity.copy() ,radius ,direction, limit,previous.magnitude , attachment);
-   }
+  Loop(Movement previous, float radius, float direction, float limit, Enemy attachment) {
+    this(previous.endPos.copy(), previous.velocity.copy(), radius, direction, limit, previous.magnitude, attachment);
+  }
 
   PVector pointInCircle(float t) {
     return new PVector (centerPoint.x + radius*cos(t), centerPoint.y + radius*sin(t));
   } 
   PVector getVel() {
+    ellipse(centerPoint.x, centerPoint.y, 10, 10);
+    if (firstTime) {
+      centerPoint = velocity.copy();
+      centerPoint.setMag(-radius);
+      centerPoint.rotate(PI + (HALF_PI * direction));
+      centerPoint.add(startPos);//this is it
+      firstTime = false;
+    }
+    ellipse(centerPoint.x, centerPoint.y, 10, 10);
+
     t -= (-direction)*(magnitude/radius);
     velocity.x = -(currentPos.x - (centerPoint.x+radius*cos(t)));
     velocity.y = -(currentPos.y - (centerPoint.y+radius*sin(t)));
     return velocity;
   }
   boolean checkDone() {
-    if (t < loopEnd && direction == 1) return false;
-    if (t > loopEnd && direction == -1) return false;
+    if (t < loopEnd && direction == 1) {
+      return false;
+    }
+    if (t > loopEnd && direction == -1) {
+      return false;
+    }
+    //println(pointInCircle(t- (-direction)*(magnitude/radius)),endPos, currentPos, PVector.mult(velocity, 60/frameRate));
+    //println(endPos, currentPos);
     endPos = currentPos.copy();
-    velocity.setMag(magnitude);
+    //velocity.setMag(magnitude);
     done = true;
     return true;
   }
