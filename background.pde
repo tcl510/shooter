@@ -1,5 +1,5 @@
 //array of stars
-Star[] stars; //<>//
+Star[] stars; //<>// //<>//
 
 //generate new stars
 void newStars(){

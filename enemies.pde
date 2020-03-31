@@ -38,7 +38,7 @@ Enemy[] enemies = {
 };
 
 
-class Enemy extends rect {
+class Enemy extends ellipse {
 
   boolean hit = false;
   Pattern entry = new Pattern();
@@ -96,19 +96,14 @@ class PatternA extends Pattern {
   PatternA(PVector startPos, PVector endPos, Enemy attachment) {
 
     movementList.add(new Straight(startPos, new PVector(420, 400), Movement.DEFAULT_SPEED, attachment));
-    movementList.add(new Loop(movementList.get(movementList.size()-1), Loop.DEFAULT_RADIUS, Loop.RIGHT, 120, attachment));
+    movementList.add(new Loop(movementList.get(movementList.size()-1), Loop.DEFAULT_RADIUS, Loop.RIGHT, 200, attachment));
     movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(200, 600), attachment));
-    movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(10, 10), attachment));
+    movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(20, 10), attachment));
     movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(100, 600), attachment));
     movementList.add(new Straight(movementList.get(movementList.size()-1), endPos, attachment));
     this.pattern = movementList.toArray(new Movement[movementList.size()]);
     this.attachment = attachment;
   }
-
-
-  //PVector getVel() {
-  //    return new PVector(0,0);
-  //}
 }
 
 
@@ -197,59 +192,30 @@ class Loop extends Movement {
   public final static float RIGHT = 1;
   public final static float LEFT = -1;
 
-  Loop(PVector startPos, PVector velocity, float magnitude, float radius, float direction, float limit) {
-    //this.centerPoint = velocity.copy();
-    //centerPoint.setMag(-radius);
-    //centerPoint.rotate(PI + (HALF_PI * direction));
-
-    //this.t = velocity.heading() + (PI + (HALF_PI * direction));
-    //this.loopEnd = t + (TWO_PI/100 * limit * direction);
-
-    //this.startPos = startPos;
-    //this.endPos = pointInCircle(loopEnd);
-
-    //this.direction = direction;
-    //this.magnitude = magnitude;
+  Loop(PVector startPos, PVector velocity, float radius, float direction, float limit, float magnitude, Enemy attachment) {
+    super(attachment);
     this.centerPoint = velocity.copy();
     centerPoint.setMag(-radius);
     centerPoint.rotate(PI + (HALF_PI * direction));
     centerPoint.add(startPos);
-    //println(centerPoint);
     this.t = velocity.heading() + (PI + (HALF_PI * direction));
     this.loopEnd = t + (TWO_PI/100 * limit * direction);
 
     this.startPos = startPos;
+    println(startPos);
     this.endPos = pointInCircle(loopEnd);
 
     this.direction = direction;
     this.magnitude = magnitude;
 
     this.radius = radius;
-    this.velocity = velocity;
-    velocity.setMag(-magnitude);
-    this.currentPos = startPos;
-  }
-  Loop(Movement previous, float radius, float direction, float limit, Enemy attachment) {
-    super(attachment);
-    this.centerPoint = previous.velocity.copy();
-    centerPoint.setMag(-radius);
-    centerPoint.rotate(PI + (HALF_PI * direction));
-    centerPoint.add(previous.endPos);
-    this.t = previous.velocity.heading() + (PI + (HALF_PI * direction));
-    this.loopEnd = t + (TWO_PI/100 * limit * direction);
-
-    this.startPos = previous.endPos.copy();
-    println(startPos);
-    this.endPos = pointInCircle(loopEnd);
-
-    this.direction = direction;
-    this.magnitude = previous.magnitude;
-
-    this.radius = radius;
-    this.velocity = previous.velocity.copy();
+    this.velocity = velocity.copy();
     velocity.setMag(-magnitude);
     //this.currentPos = startPos;
   }
+   Loop(Movement previous, float radius, float direction, float limit, Enemy attachment) {
+     this(previous.endPos.copy(), previous.velocity.copy() ,radius ,direction, limit,previous.magnitude , attachment);
+   }
 
   PVector pointInCircle(float t) {
     return new PVector (centerPoint.x + radius*cos(t), centerPoint.y + radius*sin(t));
@@ -257,7 +223,7 @@ class Loop extends Movement {
   PVector getVel() {
     //currentPos = attachment.cords.copy();
     //ellipse(centerPoint.x, centerPoint.y, 10,10);
-    println("here"); //<>//
+    println("here");
     //PVector pos = pointInCircle(t);
     t -= (-direction)*(magnitude/radius);
 
@@ -276,6 +242,7 @@ class Loop extends Movement {
     if (t < loopEnd && direction == 1) return false;
     if (t > loopEnd && direction == -1) return false;
     endPos = currentPos.copy();
+    velocity.setMag(magnitude);
     done = true;
     return true;
   }
