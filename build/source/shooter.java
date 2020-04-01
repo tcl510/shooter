@@ -29,17 +29,49 @@ public void setup() {
   loadSound();
   //galaga setup
   galaga_setup();
-  
+
 }
 
 public void draw() {
   //play the game galaga;
-  galaga();
+  gameStateHandler();
   //start the timer function(helps universially with timing the game)
   time();
 }
 
 Player player;
+int gameState = 1;
+final int GAMESTATE_MENU = 0;
+final int GAMESTATE_OPENING = 1;
+final int GAMESTATE_GAME_KEYBOARD = 2;
+final int GAMESTATE_GAME_WEBCAM = 3;
+final int GAMESTATE_HOWTO = 4;
+
+public void gameStateHandler(){
+  switch(gameState){
+    case GAMESTATE_MENU:
+      bg();
+      menu();
+      break;
+    case GAMESTATE_GAME_KEYBOARD:
+      galagaKeyboard();
+      break;
+    case GAMESTATE_OPENING:
+      bg();
+      splashScreen();
+      break;
+    case GAMESTATE_GAME_WEBCAM:
+      galagaWebcam();
+      break;
+    case GAMESTATE_HOWTO:
+      bg();
+      howTo();
+      break;
+    default:
+      gameState = GAMESTATE_GAME_KEYBOARD;
+      break;
+  }
+}
 
 //game setup
 public void galaga_setup() {
@@ -48,18 +80,24 @@ public void galaga_setup() {
 }
 
 //neatly wrapped game to be put in draw
-public void galaga() {
-  //update background
-  bg();
+public void galagaKeyboard() {
   //draw and update objects
-  //player
-  player.draw();
-  //draw, render, and delete, and determain behaviour of bullets
-  bullets();
-  //draw, render, and delete enemies
-  enemies();
-  //draw, render, and delete explosions
-  explosions();
+  bg();//update background
+  player.draw(); //player
+  bullets();  //draw, render, and delete, and determain behaviour of bullets
+  enemies(); //draw, render, and delete enemies
+  explosions(); //draw, render, and delete explosions
+  gameGui();//draw ui
+}
+
+public void galagaWebcam(){
+  //draw and update objects
+  bg();//update background
+  player.draw(); //player
+  bullets();  //draw, render, and delete, and determain behaviour of bullets
+  enemies(); //draw, render, and delete enemies
+  explosions(); //draw, render, and delete explosions
+  gameGui();//draw ui
 }
 
 
@@ -71,19 +109,51 @@ public void mousePressed(){
 //controller function
 public void keyPressed() {
   //galaga movement
+  if (gameState == GAMESTATE_OPENING){
+    if (key == ' ') gameState = GAMESTATE_MENU;
+    return;
+  }
+  if (gameState == GAMESTATE_MENU){
+    if (key == 'a' || keyCode == LEFT || key == 'A') selection--;
+    if (key == 'd' || keyCode == RIGHT || key == 'D') selection++;
+    if (key == 'w' || keyCode == UP || key == 'W') selection++;
+    if (key == 's' || keyCode == DOWN || key == 'S') selection--;
+    if (selection > 2){
+      selection = 0;
+    }
+    if (selection < 0){
+      selection = 2;
+    }
+    if (key == ' ' || keyCode == ENTER) gameState = GAMESTATE_GAME_KEYBOARD + selection;
+    return;
+  }
+  if (gameState == GAMESTATE_HOWTO){
+    if (key == ' ' || keyCode == ENTER) gameState = GAMESTATE_MENU;
+    return;
+  }
+  if (gameState == GAMESTATE_GAME_KEYBOARD){
   if (key == 'a' || keyCode == LEFT || key == 'A') player.left = true;
   if (key == 'd' || keyCode == RIGHT || key == 'D') player.right = true;
   if (key == 'w' || keyCode == UP || key == 'W') player.up = true;
   if (key == 's' || keyCode == DOWN || key == 'S') player.down = true;
   if (key == ' ') player.shoot();
 }
+if (gameState == GAMESTATE_GAME_WEBCAM){
+  if (key == ' ') player.shoot();
+}
+}
 public void keyReleased() {
   //galaga movement
+  if (gameState == GAMESTATE_GAME_KEYBOARD){
   if (key == 'a' || keyCode == LEFT || key == 'A') player.left = false;
   if (key == 'd' || keyCode == RIGHT || key == 'D') player.right = false;
   if (key == 'w' || keyCode == UP || key == 'W') player.up = false;
   if (key == 's' || keyCode == DOWN || key == 'S') player.down = false;
   if (key == ' ') player.isShooting = false;
+}
+if (gameState == GAMESTATE_GAME_WEBCAM){
+if (key == ' ') player.isShooting = false;
+}
 }
 //array of stars
 Star[] stars; //<>// //<>//
@@ -109,6 +179,7 @@ public void bg() {
     i.draw();
   }
 }
+
 
 
 float speed = 25;
@@ -167,6 +238,7 @@ public class Star {
   }
 }
 ArrayList<Bullet> bullets = new ArrayList<Bullet>();
+ArrayList<Bullet> enemyBullets = new ArrayList<Bullet>();
 
 public void bullets() {
 
@@ -182,6 +254,20 @@ public void bullets() {
       bullets.remove(i);
     }
   }
+
+  for (Bullet bullet : enemyBullets) {
+    //print(bullet.cords);
+    bullet.draw();
+    println("enemyBullets");
+  }
+  //delete bullets
+  for (int i = enemyBullets.size() - 1; i >= 0; i--) {
+    Bullet bullet = enemyBullets.get(i);
+    if (bullet.finished()) {
+      enemyBullets.remove(i);
+    }
+  }
+
 }
 
 
@@ -193,7 +279,7 @@ class Bullet extends ellipse {
     this.vel = new PVector(0, -bulletVelocity);
   }
   boolean shot = false;
-  
+
   //check to see if the bullet is out of bounds or hit something, if either finished is true
   public boolean finished() {
     if (cords.y <= 0) {
@@ -206,7 +292,7 @@ class Bullet extends ellipse {
 
     return false;
   }
-  
+
   public void draw() {
     noStroke();
     super.draw();
@@ -216,7 +302,6 @@ int waves = 0;
 
 public void enemies() {
   //draw enemies and check for hit
-  println(waves);
   boolean waveFinished = true;
   for (Enemy enemy : currentWave) {
     //for each bullet
@@ -229,6 +314,7 @@ public void enemies() {
           explosion.play();
           explosions.add(new Explosion(enemy));
           explosions.add(new Explosion(bullet));
+          score += 1;
         }
       }
     }
@@ -237,19 +323,15 @@ public void enemies() {
       enemy.draw();
     }
   }
-  println(waveFinished);
   if (waveFinished) {
-    //waves++;
-    //waves = constrain(waves, 0, enemieWaves.length-1);
     waves = PApplet.parseInt(random(4));
     currentWave = newWave(waves);
   }
 }
-
-ArrayList<Enemy> enemy = new ArrayList<Enemy>();
 static final PVector defaultEnemySize = new PVector(20, 20);
-Enemy[] currentWave = newWave(3);
+
 float spacing = 40;
+Enemy[] currentWave = newWave(3);
 public Enemy[] newWave(int waveCode) {
   switch(waveCode) {
   case 0:
@@ -550,7 +632,12 @@ class Enemy extends rect {
 
   public void draw() {
     if (entry != null) {
+      //mark
       this.vel = entry.getVel();
+      // int diceRoll = random(1);
+      if (PApplet.parseInt(random(150)) == 0){
+        enemyBullets.add(new Bullet(cords.copy()));
+      }
     }
     super.draw();
   }
@@ -575,15 +662,10 @@ class Pattern {
           done = true;
           return pattern[step].getCorrection();
         }
-
-        //step = constrain(step, 0, pattern.length-1);
         return new PVector(0, 0);
       }
       step = constrain(step, 0, pattern.length-1);
-
-      //println(startPos, currentPos);
       pattern[step].startPos = attachment.cords.copy();
-      //println(pattern[step].startPos, attachment.cords);
     };
     return pattern[step].getVel();
   }
@@ -641,7 +723,6 @@ class PatternE extends Pattern {
 
   PatternE(PVector startPos, PVector endPos, Enemy attachment) {
     movementList.add(new Straight(startPos, new PVector(300, 500), Movement.DEFAULT_SPEED, attachment));
-    // movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(672/2, 400), attachment));
     movementList.add(new Loop(movementList.get(movementList.size()-1), Loop.DEFAULT_RADIUS, Loop.RIGHT, 100, attachment));
     movementList.add(new Loop(movementList.get(movementList.size()-1), Loop.DEFAULT_RADIUS+20, Loop.LEFT, 100, attachment));
     movementList.add(new Loop(movementList.get(movementList.size()-1), Loop.DEFAULT_RADIUS+40, Loop.LEFT, 100, attachment));
@@ -674,7 +755,6 @@ class PatternG extends Pattern {
       movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(30, 400), attachment));
       movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(100, 350), attachment));
       movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(30, 300), attachment));
-      // movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(672/2, 300), attachment));
       movementList.add(new Straight(movementList.get(movementList.size()-1), endPos, attachment));
       this.pattern = movementList.toArray(new Movement[movementList.size()]);
       this.attachment = attachment;
@@ -692,7 +772,6 @@ class PatternH extends Pattern {
       movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(672-30, 400), attachment));
       movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(672-100, 350), attachment));
       movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(672-30, 300), attachment));
-      // movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(672/2, 300), attachment));
       movementList.add(new Straight(movementList.get(movementList.size()-1), endPos, attachment));
       this.pattern = movementList.toArray(new Movement[movementList.size()]);
       this.attachment = attachment;
@@ -796,7 +875,6 @@ class Loop extends Movement {
     this.startPos = startPos;
     this.endPos = pointInCircle(loopEnd);
 
-
     this.direction = direction;
     this.magnitude = magnitude;
 
@@ -819,7 +897,6 @@ class Loop extends Movement {
       centerPoint.add(startPos);//this is it
       firstTime = false;
     }
-    //ellipse(centerPoint.x, centerPoint.y, 10, 10);
 
     t -= (-direction)*(magnitude/radius);
     velocity.x = -(currentPos.x - (centerPoint.x+radius*cos(t)));
@@ -916,8 +993,8 @@ public class Explosion {
 
 
 
-/* 
-converters: 
+/*
+converters:
 
 converts the java rectangle format to my format of a rectangle
 */
@@ -942,10 +1019,10 @@ public ellipse[] rectangleToEllipse(Rectangle[] rectangle_array) {
 
 
 
-/* 
+/*
 Collision calculations
 
-calculate the collision of different shapes 
+calculate the collision of different shapes
 */
 //calculate the collision of two circles
 public boolean ellipseWithEllipse(PVector cord, PVector size, PVector otherCord, PVector otherSize) {
@@ -1029,11 +1106,11 @@ public boolean rectWithEllipse(rect rect, ellipse ellipse) {
 public PVector[] findCorners(PVector cords, PVector size) {
   PVector[] corners = {
     //top right corner
-    new PVector(cords.x + size.x/2, cords.y + size.y/2), 
+    new PVector(cords.x + size.x/2, cords.y + size.y/2),
     //bottom left corner
-    new PVector(cords.x - size.x/2, cords.y - size.y/2), 
+    new PVector(cords.x - size.x/2, cords.y - size.y/2),
     //bottom right corner
-    new PVector(cords.x + size.x/2, cords.y - size.y/2), 
+    new PVector(cords.x + size.x/2, cords.y - size.y/2),
     //top left corner
     new PVector(cords.x - size.x/2, cords.y + size.y/2)
 
@@ -1197,7 +1274,7 @@ class ellipse extends object implements entity {
     this.type = TYPE_ELLIPSE;
   }
   ellipse(PVector size, float x, float y) {
-    super(size, new PVector(x, y)); 
+    super(size, new PVector(x, y));
     this.type = TYPE_ELLIPSE;
   }
 
@@ -1220,11 +1297,14 @@ class ellipse extends object implements entity {
     ellipse(cords.x, cords.y, size.x, size.y);
   }
 }
+
+
 class Player extends rect{
-  
+
     //float playerMoveSpeed = 10;
-     
-    boolean up, down, left, right, isShooting = false;
+
+
+    boolean up, down, left, right, isShooting, hit = false;
 
     Player(){
       this.size = new PVector(50,50);
@@ -1251,8 +1331,8 @@ class Player extends rect{
       if (right){
         this.vel.x += playerMoveSpeed;
       }
-      
-      
+
+
     }
 
     public void shoot(){
@@ -1265,9 +1345,9 @@ class Player extends rect{
         }
         //make this function not work until the key is released
         isShooting = true;
-        
+
     }
-    
+
     public void draw(){
       //update velocity
       move();
@@ -1275,8 +1355,24 @@ class Player extends rect{
       fill(255);
       //draw according to parent
       super.draw();
+      //for each bullet
+        for (Bullet bullet : bullets) {
+          //todo turn enemy into a list instead of array
+          if (!hit) {
+            if (this.collision(bullet)) {
+              bullet.shot = true;
+              hit = true;
+              explosion.play();
+              explosions.add(new Explosion(cords));
+              explosions.add(new Explosion(bullet));
+              // score += 1;
+            }
+          }
+        }
+
+
+      }
     }
-}
 
 SoundFile explosion;
 SoundFile pew;
@@ -1295,6 +1391,73 @@ public void time() {
   //frameRate is measured in frames per second. therefore, if we put 1/frameRate, u can tell how much time has passed based on the last frame giving us a time independent of frameRate allow varying frameRate
   timeCount += 1/frameRate;
   //println(frameRate);
+}
+public int score = 0;
+
+public void ui(){
+
+
+}
+
+public void gameGui(){
+  scoreBoard();
+}
+
+public void scoreBoard(){
+  textAlign(RIGHT,TOP);
+  String scoreBoardText = "Score: " + score;
+  fill(255);
+  text(scoreBoardText, 672, 0);
+}
+
+int selection = 0;
+
+public void menu(){
+  textSize(20);
+
+  float point1 = height/2;
+  float point2 = point1 - 70;
+  float point3 = point2 - 70;
+  text("Play with keyboard", width/2, point1);
+  text("Play with Webcam", width/2, point2);
+  text("Instructions", width/2, point3);
+
+  textAlign(CENTER,CENTER);
+  fill(255);
+  textSize(30);
+  text("HOW WOULD YOU LIKE TO PLAY", width/2, height/4);
+
+  switch(selection){
+    case 0:
+      text(">", width/4, point1);
+      break;
+    case 1:
+      text(">", width/4, point2);
+      break;
+    case 2:
+      text(">", width/4, point3);
+      break;
+  }
+}
+
+public void splashScreen(){
+  textAlign(CENTER,CENTER);
+  fill(255);
+  textSize(60);
+  text("WEBCAM PEW PEW", width/2, height/3);
+  textSize(20);
+  fill((timeCount%1)*255);
+  text("PRESS SPACE TO START", width/2, height/2);
+}
+
+public void howTo(){
+  String instructions = "To play this game, in keyboard mode, use the wasd or arrow keys to move the charactor. Press spacebar to shoot. In order to play in webcam mode, the game tracks your nose, so lean left to right to move the ship, then press spacebar to shoot!";
+  textAlign(CENTER,CENTER);
+  fill(255);
+  rectMode(CORNER);
+  text(instructions, 100, 100, 2*width/3, 2*height/3);
+  text(">back", width/2, height-100);
+  // text(">", width/4, height-100);
 }
   public void settings() {  size(672, 864); }
   static public void main(String[] passedArgs) {

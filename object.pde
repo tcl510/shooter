@@ -1,8 +1,8 @@
 import java.awt.Rectangle;
 
 
-/* 
-converters: 
+/*
+converters:
 
 converts the java rectangle format to my format of a rectangle
 */
@@ -27,10 +27,10 @@ ellipse[] rectangleToEllipse(Rectangle[] rectangle_array) {
 
 
 
-/* 
+/*
 Collision calculations
 
-calculate the collision of different shapes 
+calculate the collision of different shapes
 */
 //calculate the collision of two circles
 boolean ellipseWithEllipse(PVector cord, PVector size, PVector otherCord, PVector otherSize) {
@@ -114,11 +114,11 @@ boolean rectWithEllipse(rect rect, ellipse ellipse) {
 PVector[] findCorners(PVector cords, PVector size) {
   PVector[] corners = {
     //top right corner
-    new PVector(cords.x + size.x/2, cords.y + size.y/2), 
+    new PVector(cords.x + size.x/2, cords.y + size.y/2),
     //bottom left corner
-    new PVector(cords.x - size.x/2, cords.y - size.y/2), 
+    new PVector(cords.x - size.x/2, cords.y - size.y/2),
     //bottom right corner
-    new PVector(cords.x + size.x/2, cords.y - size.y/2), 
+    new PVector(cords.x + size.x/2, cords.y - size.y/2),
     //top left corner
     new PVector(cords.x - size.x/2, cords.y + size.y/2)
 
@@ -282,7 +282,7 @@ class ellipse extends object implements entity {
     this.type = TYPE_ELLIPSE;
   }
   ellipse(PVector size, float x, float y) {
-    super(size, new PVector(x, y)); 
+    super(size, new PVector(x, y));
     this.type = TYPE_ELLIPSE;
   }
 

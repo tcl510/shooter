@@ -2,7 +2,6 @@ int waves = 0;
 
 void enemies() {
   //draw enemies and check for hit
-  println(waves);
   boolean waveFinished = true;
   for (Enemy enemy : currentWave) {
     //for each bullet
@@ -15,6 +14,7 @@ void enemies() {
           explosion.play();
           explosions.add(new Explosion(enemy));
           explosions.add(new Explosion(bullet));
+          score += 1;
         }
       }
     }
@@ -23,19 +23,15 @@ void enemies() {
       enemy.draw();
     }
   }
-  println(waveFinished);
   if (waveFinished) {
-    //waves++;
-    //waves = constrain(waves, 0, enemieWaves.length-1);
     waves = int(random(4));
     currentWave = newWave(waves);
   }
 }
-
-ArrayList<Enemy> enemy = new ArrayList<Enemy>();
 static final PVector defaultEnemySize = new PVector(20, 20);
-Enemy[] currentWave = newWave(3);
+
 float spacing = 40;
+Enemy[] currentWave = newWave(3);
 Enemy[] newWave(int waveCode) {
   switch(waveCode) {
   case 0:
@@ -336,7 +332,12 @@ class Enemy extends rect {
 
   void draw() {
     if (entry != null) {
+      //mark
       this.vel = entry.getVel();
+      // int diceRoll = random(1);
+      if (int(random(150)) == 0){
+        enemyBullets.add(new Bullet(cords.copy()));
+      }
     }
     super.draw();
   }
@@ -361,15 +362,10 @@ class Pattern {
           done = true;
           return pattern[step].getCorrection();
         }
-
-        //step = constrain(step, 0, pattern.length-1);
         return new PVector(0, 0);
       }
       step = constrain(step, 0, pattern.length-1);
-
-      //println(startPos, currentPos);
       pattern[step].startPos = attachment.cords.copy();
-      //println(pattern[step].startPos, attachment.cords);
     };
     return pattern[step].getVel();
   }
@@ -427,7 +423,6 @@ class PatternE extends Pattern {
 
   PatternE(PVector startPos, PVector endPos, Enemy attachment) {
     movementList.add(new Straight(startPos, new PVector(300, 500), Movement.DEFAULT_SPEED, attachment));
-    // movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(672/2, 400), attachment));
     movementList.add(new Loop(movementList.get(movementList.size()-1), Loop.DEFAULT_RADIUS, Loop.RIGHT, 100, attachment));
     movementList.add(new Loop(movementList.get(movementList.size()-1), Loop.DEFAULT_RADIUS+20, Loop.LEFT, 100, attachment));
     movementList.add(new Loop(movementList.get(movementList.size()-1), Loop.DEFAULT_RADIUS+40, Loop.LEFT, 100, attachment));
@@ -460,7 +455,6 @@ class PatternG extends Pattern {
       movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(30, 400), attachment));
       movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(100, 350), attachment));
       movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(30, 300), attachment));
-      // movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(672/2, 300), attachment));
       movementList.add(new Straight(movementList.get(movementList.size()-1), endPos, attachment));
       this.pattern = movementList.toArray(new Movement[movementList.size()]);
       this.attachment = attachment;
@@ -478,7 +472,6 @@ class PatternH extends Pattern {
       movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(672-30, 400), attachment));
       movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(672-100, 350), attachment));
       movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(672-30, 300), attachment));
-      // movementList.add(new Straight(movementList.get(movementList.size()-1), new PVector(672/2, 300), attachment));
       movementList.add(new Straight(movementList.get(movementList.size()-1), endPos, attachment));
       this.pattern = movementList.toArray(new Movement[movementList.size()]);
       this.attachment = attachment;
@@ -582,7 +575,6 @@ class Loop extends Movement {
     this.startPos = startPos;
     this.endPos = pointInCircle(loopEnd);
 
-
     this.direction = direction;
     this.magnitude = magnitude;
 
@@ -605,7 +597,6 @@ class Loop extends Movement {
       centerPoint.add(startPos);//this is it
       firstTime = false;
     }
-    //ellipse(centerPoint.x, centerPoint.y, 10, 10);
 
     t -= (-direction)*(magnitude/radius);
     velocity.x = -(currentPos.x - (centerPoint.x+radius*cos(t)));

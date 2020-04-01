@@ -24,6 +24,7 @@ void bg() {
 }
 
 
+
 float speed = 25;
 
 public class Star {

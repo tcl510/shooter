@@ -1,8 +1,11 @@
+
+
 class Player extends rect{
-  
+
     //float playerMoveSpeed = 10;
-     
-    boolean up, down, left, right, isShooting = false;
+
+
+    boolean up, down, left, right, isShooting, hit = false;
 
     Player(){
       this.size = new PVector(50,50);
@@ -29,8 +32,8 @@ class Player extends rect{
       if (right){
         this.vel.x += playerMoveSpeed;
       }
-      
-      
+
+
     }
 
     void shoot(){
@@ -43,9 +46,9 @@ class Player extends rect{
         }
         //make this function not work until the key is released
         isShooting = true;
-        
+
     }
-    
+
     void draw(){
       //update velocity
       move();
@@ -53,5 +56,21 @@ class Player extends rect{
       fill(255);
       //draw according to parent
       super.draw();
+      //for each bullet
+        for (Bullet bullet : bullets) {
+          //todo turn enemy into a list instead of array
+          if (!hit) {
+            if (this.collision(bullet)) {
+              bullet.shot = true;
+              hit = true;
+              explosion.play();
+              explosions.add(new Explosion(cords));
+              explosions.add(new Explosion(bullet));
+              // score += 1;
+            }
+          }
+        }
+
+
+      }
     }
-}
