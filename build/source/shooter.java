@@ -46,6 +46,7 @@ final int GAMESTATE_OPENING = 1;
 final int GAMESTATE_GAME_KEYBOARD = 2;
 final int GAMESTATE_GAME_WEBCAM = 3;
 final int GAMESTATE_HOWTO = 4;
+final int GAMESTATE_GAMEOVER = 5;
 
 public void gameStateHandler(){
   switch(gameState){
@@ -66,6 +67,10 @@ public void gameStateHandler(){
     case GAMESTATE_HOWTO:
       bg();
       howTo();
+      break;
+    case GAMESTATE_GAMEOVER:
+      background(0);
+      gameOver();
       break;
     default:
       gameState = GAMESTATE_GAME_KEYBOARD;
@@ -110,6 +115,7 @@ public void mousePressed(){
 public void keyPressed() {
   //galaga movement
   if (gameState == GAMESTATE_OPENING){
+
     if (key == ' ') gameState = GAMESTATE_MENU;
     return;
   }
@@ -140,6 +146,12 @@ public void keyPressed() {
 }
 if (gameState == GAMESTATE_GAME_WEBCAM){
   if (key == ' ') player.shoot();
+}
+if (gameState == GAMESTATE_GAMEOVER){
+  if (key == ' ') {
+    sad.stop();
+    gameState = GAMESTATE_OPENING;
+  };
 }
 }
 public void keyReleased() {
@@ -258,7 +270,6 @@ public void bullets() {
   for (Bullet bullet : enemyBullets) {
     //print(bullet.cords);
     bullet.draw();
-    println("enemyBullets");
   }
   //delete bullets
   for (int i = enemyBullets.size() - 1; i >= 0; i--) {
@@ -270,13 +281,24 @@ public void bullets() {
 
 }
 
-
+static final float DEFAULT_BULLETVELOCITY = 10;
 class Bullet extends ellipse {
   float bulletVelocity = 10;
 
-  Bullet(PVector start) {
-    super(new PVector(10, 10), start);
-    this.vel = new PVector(0, -bulletVelocity);
+  int r, g, b = 255;
+
+  Bullet(PVector start, int direction, int r, int g, int b, float bulletVelocity) {
+    super(new PVector(10, 20), start);
+    this.vel = new PVector(0, direction * bulletVelocity);
+    this.r = r;
+    this.g = g;
+    this.b = b;
+  }
+  Bullet(PVector start){
+    this(start, -1, 255, 255, 255, 10);
+  }
+  Bullet(PVector start, int direction, int r, int g, int b){
+    this(start, direction, r, g, b, DEFAULT_BULLETVELOCITY);
   }
   boolean shot = false;
 
@@ -295,6 +317,7 @@ class Bullet extends ellipse {
 
   public void draw() {
     noStroke();
+    fill(r,g,b);
     super.draw();
   }
 }
@@ -315,6 +338,10 @@ public void enemies() {
           explosions.add(new Explosion(enemy));
           explosions.add(new Explosion(bullet));
           score += 1;
+          if (score%200 == 0){
+            lives += 1;
+            noiise.play();
+          }
         }
       }
     }
@@ -326,6 +353,7 @@ public void enemies() {
   if (waveFinished) {
     waves = PApplet.parseInt(random(4));
     currentWave = newWave(waves);
+    level += 1;
   }
 }
 static final PVector defaultEnemySize = new PVector(20, 20);
@@ -635,13 +663,14 @@ class Enemy extends rect {
       //mark
       this.vel = entry.getVel();
       // int diceRoll = random(1);
-      if (PApplet.parseInt(random(150)) == 0){
-        enemyBullets.add(new Bullet(cords.copy()));
+      if (PApplet.parseInt(random(1000-level)) == 0){
+        enemyBullets.add(new Bullet(cords.copy(), 1, 255, 0, 0, DEFAULT_BULLETVELOCITY/2));
       }
     }
     super.draw();
   }
 }
+public int level = 1;
 
 class Pattern {
   ArrayList<Movement> movementList = new ArrayList<Movement>();
@@ -1233,7 +1262,16 @@ class rect extends object implements entity {
     //object.draw() applies the proper physics, by supering the draw, the physics is first applied before drawing
     super.draw();
     //draw the actual object
+    fill(255);
     noStroke();
+    rect(cords.x, cords.y, size.x, size.y);
+  }
+  public void draw(float r, float g, float b){
+    //object.draw() applies the proper physics, by supering the draw, the physics is first applied before drawing
+    super.draw();
+    //draw the actual object
+    noStroke();
+    fill(r,g,b);
     rect(cords.x, cords.y, size.x, size.y);
   }
 }
@@ -1297,7 +1335,7 @@ class ellipse extends object implements entity {
     ellipse(cords.x, cords.y, size.x, size.y);
   }
 }
-
+int lives = 3;
 
 class Player extends rect{
 
@@ -1356,17 +1394,23 @@ class Player extends rect{
       //draw according to parent
       super.draw();
       //for each bullet
-        for (Bullet bullet : bullets) {
+        for (Bullet bullet : enemyBullets) {
           //todo turn enemy into a list instead of array
-          if (!hit) {
+          // if (!hit) {
             if (this.collision(bullet)) {
+              oof.play();
               bullet.shot = true;
               hit = true;
               explosion.play();
-              explosions.add(new Explosion(cords));
+              explosions.add(new Explosion(this));
               explosions.add(new Explosion(bullet));
-              // score += 1;
-            }
+              lives -= 1;
+              if (lives < 0){
+                gameState = GAMESTATE_GAMEOVER;
+                sad.play();
+              }
+
+            // }
           }
         }
 
@@ -1376,11 +1420,17 @@ class Player extends rect{
 
 SoundFile explosion;
 SoundFile pew;
+SoundFile noiise;
+SoundFile oof;
+SoundFile sad;
 
 public void loadSound(){
   //loads all the soundfiles
   explosion = new SoundFile(this, "explosion.wav");
   pew = new SoundFile(this, "pew.wav");
+  noiise = new SoundFile(this, "noiise.wav");
+  oof = new SoundFile(this, "oof.wav");
+  sad = new SoundFile(this, "sad.wav");
 }
 //this is a universial time function used to untie game from frameRate at places where a varying frameRate would disrupt gameplay
 
@@ -1408,6 +1458,10 @@ public void scoreBoard(){
   String scoreBoardText = "Score: " + score;
   fill(255);
   text(scoreBoardText, 672, 0);
+  textAlign(RIGHT,BOTTOM);
+  text("Lives: " + lives, 672, height);
+  textAlign(LEFT,TOP);
+  text("Level: " + level, 0, 0);
 }
 
 int selection = 0;
@@ -1418,6 +1472,7 @@ public void menu(){
   float point1 = height/2;
   float point2 = point1 - 70;
   float point3 = point2 - 70;
+  fill(255);
   text("Play with keyboard", width/2, point1);
   text("Play with Webcam", width/2, point2);
   text("Instructions", width/2, point3);
@@ -1458,6 +1513,17 @@ public void howTo(){
   text(instructions, 100, 100, 2*width/3, 2*height/3);
   text(">back", width/2, height-100);
   // text(">", width/4, height-100);
+}
+
+public void gameOver(){
+  textAlign(CENTER,CENTER);
+  fill(255);
+  textSize(60);
+  text("Game Over", width/2, height/3);
+  textSize(20);
+  text("Your score was " + score, width/2, 343);
+  fill((timeCount%1)*255);
+  text("PRESS TO RETURN TO MENU", width/2, height/2);
 }
   public void settings() {  size(672, 864); }
   static public void main(String[] passedArgs) {

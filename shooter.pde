@@ -27,6 +27,7 @@ final int GAMESTATE_OPENING = 1;
 final int GAMESTATE_GAME_KEYBOARD = 2;
 final int GAMESTATE_GAME_WEBCAM = 3;
 final int GAMESTATE_HOWTO = 4;
+final int GAMESTATE_GAMEOVER = 5;
 
 void gameStateHandler(){
   switch(gameState){
@@ -47,6 +48,10 @@ void gameStateHandler(){
     case GAMESTATE_HOWTO:
       bg();
       howTo();
+      break;
+    case GAMESTATE_GAMEOVER:
+      background(0);
+      gameOver();
       break;
     default:
       gameState = GAMESTATE_GAME_KEYBOARD;
@@ -91,6 +96,7 @@ void mousePressed(){
 void keyPressed() {
   //galaga movement
   if (gameState == GAMESTATE_OPENING){
+
     if (key == ' ') gameState = GAMESTATE_MENU;
     return;
   }
@@ -121,6 +127,12 @@ void keyPressed() {
 }
 if (gameState == GAMESTATE_GAME_WEBCAM){
   if (key == ' ') player.shoot();
+}
+if (gameState == GAMESTATE_GAMEOVER){
+  if (key == ' ') {
+    sad.stop();
+    gameState = GAMESTATE_OPENING;
+  };
 }
 }
 void keyReleased() {

@@ -241,7 +241,16 @@ class rect extends object implements entity {
     //object.draw() applies the proper physics, by supering the draw, the physics is first applied before drawing
     super.draw();
     //draw the actual object
+    fill(255);
     noStroke();
+    rect(cords.x, cords.y, size.x, size.y);
+  }
+  void draw(float r, float g, float b){
+    //object.draw() applies the proper physics, by supering the draw, the physics is first applied before drawing
+    super.draw();
+    //draw the actual object
+    noStroke();
+    fill(r,g,b);
     rect(cords.x, cords.y, size.x, size.y);
   }
 }

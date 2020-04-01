@@ -1,4 +1,4 @@
-
+int lives = 3;
 
 class Player extends rect{
 
@@ -57,17 +57,23 @@ class Player extends rect{
       //draw according to parent
       super.draw();
       //for each bullet
-        for (Bullet bullet : bullets) {
+        for (Bullet bullet : enemyBullets) {
           //todo turn enemy into a list instead of array
-          if (!hit) {
+          // if (!hit) {
             if (this.collision(bullet)) {
+              oof.play();
               bullet.shot = true;
               hit = true;
               explosion.play();
-              explosions.add(new Explosion(cords));
+              explosions.add(new Explosion(this));
               explosions.add(new Explosion(bullet));
-              // score += 1;
-            }
+              lives -= 1;
+              if (lives < 0){
+                gameState = GAMESTATE_GAMEOVER;
+                sad.play();
+              }
+
+            // }
           }
         }
 

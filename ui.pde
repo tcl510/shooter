@@ -14,6 +14,10 @@ void scoreBoard(){
   String scoreBoardText = "Score: " + score;
   fill(255);
   text(scoreBoardText, 672, 0);
+  textAlign(RIGHT,BOTTOM);
+  text("Lives: " + lives, 672, height);
+  textAlign(LEFT,TOP);
+  text("Level: " + level, 0, 0);
 }
 
 int selection = 0;
@@ -24,6 +28,7 @@ void menu(){
   float point1 = height/2;
   float point2 = point1 - 70;
   float point3 = point2 - 70;
+  fill(255);
   text("Play with keyboard", width/2, point1);
   text("Play with Webcam", width/2, point2);
   text("Instructions", width/2, point3);
@@ -64,4 +69,15 @@ void howTo(){
   text(instructions, 100, 100, 2*width/3, 2*height/3);
   text(">back", width/2, height-100);
   // text(">", width/4, height-100);
+}
+
+void gameOver(){
+  textAlign(CENTER,CENTER);
+  fill(255);
+  textSize(60);
+  text("Game Over", width/2, height/3);
+  textSize(20);
+  text("Your score was " + score, width/2, 343);
+  fill((timeCount%1)*255);
+  text("PRESS TO RETURN TO MENU", width/2, height/2);
 }

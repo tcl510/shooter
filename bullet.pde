@@ -19,7 +19,6 @@ void bullets() {
   for (Bullet bullet : enemyBullets) {
     //print(bullet.cords);
     bullet.draw();
-    println("enemyBullets");
   }
   //delete bullets
   for (int i = enemyBullets.size() - 1; i >= 0; i--) {
@@ -31,16 +30,24 @@ void bullets() {
 
 }
 
-
+static final float DEFAULT_BULLETVELOCITY = 10;
 class Bullet extends ellipse {
   float bulletVelocity = 10;
 
-  Bullet(PVector start, int direction) {
-    super(new PVector(10, 10), start);
+  int r, g, b = 255;
+
+  Bullet(PVector start, int direction, int r, int g, int b, float bulletVelocity) {
+    super(new PVector(10, 20), start);
     this.vel = new PVector(0, direction * bulletVelocity);
+    this.r = r;
+    this.g = g;
+    this.b = b;
   }
   Bullet(PVector start){
-    this(start, -1);
+    this(start, -1, 255, 255, 255, 10);
+  }
+  Bullet(PVector start, int direction, int r, int g, int b){
+    this(start, direction, r, g, b, DEFAULT_BULLETVELOCITY);
   }
   boolean shot = false;
 
@@ -59,6 +66,7 @@ class Bullet extends ellipse {
 
   void draw() {
     noStroke();
+    fill(r,g,b);
     super.draw();
   }
 }

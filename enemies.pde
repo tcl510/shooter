@@ -15,6 +15,10 @@ void enemies() {
           explosions.add(new Explosion(enemy));
           explosions.add(new Explosion(bullet));
           score += 1;
+          if (score%200 == 0){
+            lives += 1;
+            noiise.play();
+          }
         }
       }
     }
@@ -26,6 +30,7 @@ void enemies() {
   if (waveFinished) {
     waves = int(random(4));
     currentWave = newWave(waves);
+    level += 1;
   }
 }
 static final PVector defaultEnemySize = new PVector(20, 20);
@@ -335,13 +340,14 @@ class Enemy extends rect {
       //mark
       this.vel = entry.getVel();
       // int diceRoll = random(1);
-      if (int(random(150)) == 0){
-        enemyBullets.add(new Bullet(cords.copy()));
+      if (int(random(1000-level)) == 0){
+        enemyBullets.add(new Bullet(cords.copy(), 1, 255, 0, 0, DEFAULT_BULLETVELOCITY/2));
       }
     }
     super.draw();
   }
 }
+public int level = 1;
 
 class Pattern {
   ArrayList<Movement> movementList = new ArrayList<Movement>();
