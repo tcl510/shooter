@@ -35,22 +35,22 @@ public class Explosion {
     this.size = size;
   }
   Explosion(PVector cords){
-   this.cords = cords; 
+   this.cords = cords;
   }
   Explosion(object object){
    this.cords = object.cords;
    this.scale = object.size.x;
   }
-  
+
   float alpha = 200;
 
   void draw() {
     //in essense, increase the scale till a certain point
     if (size < scale*2) {
-      
+
       //increase the size
-      size *= speed / (1/frameRate); 
-      
+      size *= speed / (1/frameRate);
+
       drawRing(255*(size/scale*2));
     } else {
       //once the explosion is a certain size, fade the explosion
