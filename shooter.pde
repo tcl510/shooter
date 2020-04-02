@@ -78,13 +78,21 @@ void galagaKeyboard() {
 }
 
 void galagaWebcam() {
-  //draw and update objects
+   //draw and update objects
+  updatePosByWebcam(); //updating the position of the block
   bg();//update background
+  gameGui();//draw ui
+  
+  if (!paused){
   player.draw(); //player
   bullets();  //draw, render, and delete, and determain behaviour of bullets
   enemies(); //draw, render, and delete enemies
   explosions(); //draw, render, and delete explosions
-  gameGui();//draw ui
+  
+  } else {
+    textAlign(CENTER,CENTER);
+   text("paused", width/2, height/2); 
+  }
 }
 
 
@@ -153,6 +161,9 @@ void keyReleased() {
   }
 }
 void restartGame() {
+  if (gameState == GAMESTATE_GAME_WEBCAM){
+    loadWebCam();
+  }
   currentWave = newWave(0);
   score = 0;
   level = 1;
@@ -161,5 +172,4 @@ void restartGame() {
   bullets = new ArrayList<Bullet>();
   enemyBullets = new ArrayList<Bullet>();
   explosions = new ArrayList<Explosion>();
-
 }
