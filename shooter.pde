@@ -5,7 +5,7 @@ void setup() {
   //based on og galaga dimensions
   size(672, 864);
   //bc this frameRate is unachieveable, processing will try its best to render at highest frameRate resulting in as smooth as possible gameplay
-  frameRate(10000);
+  frameRate(100000);
   //load sound files
   loadSound();
   //galaga setup

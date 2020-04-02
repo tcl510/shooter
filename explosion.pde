@@ -19,7 +19,7 @@ void explosions() {
 public class Explosion {
   PVector cords;
   float size = 1;
-  float speed = 0.05;
+  float speed = 3;
   boolean done = false;
   float scale;
 
@@ -49,14 +49,14 @@ public class Explosion {
     if (size < scale*2) {
 
       //increase the size
-      size *= speed / (1/frameRate);
+      size += speed * (60/frameRate);
 
       drawRing(255*(size/scale*2));
     } else {
       //once the explosion is a certain size, fade the explosion
       if (alpha*size > 0){
         drawRing(alpha);
-      alpha -= 15/(60/frameRate);
+      alpha -= 15*(60/frameRate);
       } else {
       done = true;
       }

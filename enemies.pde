@@ -36,7 +36,7 @@ void enemies() {
 static final PVector defaultEnemySize = new PVector(20, 20);
 
 float spacing = 40;
-Enemy[] currentWave = newWave(3);
+Enemy[] currentWave = newWave(0);
 Enemy[] newWave(int waveCode) {
   switch(waveCode) {
   case 0:
@@ -340,7 +340,7 @@ class Enemy extends rect {
       //mark
       this.vel = entry.getVel();
       // int diceRoll = random(1);
-      if (int(random(1000-level)) == 0){
+      if (int(random((1000-level) * frameRate/60)) == 0){
         enemyBullets.add(new Bullet(cords.copy(), 1, 255, 0, 0, DEFAULT_BULLETVELOCITY/2));
       }
     }
@@ -604,7 +604,7 @@ class Loop extends Movement {
       firstTime = false;
     }
 
-    t -= (-direction)*(magnitude/radius);
+    t -= (-direction)*((magnitude*60/frameRate)/radius);
     velocity.x = -(currentPos.x - (centerPoint.x+radius*cos(t)));
     velocity.y = -(currentPos.y - (centerPoint.y+radius*sin(t)));
     return velocity;
