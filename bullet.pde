@@ -37,7 +37,7 @@ class Bullet extends ellipse {
   int r, g, b = 255;
 
   Bullet(PVector start, int direction, int r, int g, int b, float bulletVelocity) {
-    super(new PVector(10, 20), start);
+    super(new PVector(10, 10), start);
     this.vel = new PVector(0, direction * bulletVelocity);
     this.r = r;
     this.g = g;
